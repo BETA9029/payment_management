@@ -1,0 +1,40 @@
+services:
+  # Next.js アプリケーション
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: payment-app-web
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - next_cache:/app/.next
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # Firestore Emulatorへの接続設定
+      - FIRESTORE_EMULATOR_HOST=firestore:8080
+      - GCLOUD_PROJECT=payment-management-local
+      # Gemini APIキー（.env.localから読み込み可能）
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    depends_on:
+      - firestore
+
+  # Cloud Firestore ローカルエミュレータ（公式 firebase-tools ベース）
+  firestore:
+    build:
+      context: .
+      dockerfile: Dockerfile.firestore
+    container_name: payment-app-firestore
+    ports:
+      - "8080:8080" # Firestore API用ポート
+      - "4000:4000" # ブラウザでデータ確認できるUI用ポート
+    volumes:
+      - ./firebase.json:/app/firebase.json
+
+volumes:
+  node_modules:
+  next_cache:

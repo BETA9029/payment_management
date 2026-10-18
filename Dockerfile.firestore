@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+# Firebase Emulator の実行には Java (JRE) が必要なためインストール
+RUN apk add --no-cache openjdk21-jre bash curl
+# Firebase CLI のインストール
+RUN npm install -g firebase-tools
+
+WORKDIR /app
+
+# エミュレータ設定
+ENV FIRESTORE_PROJECT_ID=payment-management-local
+
+EXPOSE 8080 4000
+
+CMD ["firebase", "emulators:start", "--project", "payment-management-local", "--only", "firestore"]
